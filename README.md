@@ -14,9 +14,13 @@ Security features:
 
 Auth flow:
 Registration — creates a user with a hashed password, optional 2FA enrollment
+
 Login — verifies against the hash, then routes to 2FA if enabled
+
 Two-Factor Authentication (2FA) — 6-digit OTP screen with a 5-minute countdown timer (code shown on screen for demo purposes)
+
 Session management — tracks login time, auth method, and session state
+
 Logout — clears session and redirects to login
 
 
