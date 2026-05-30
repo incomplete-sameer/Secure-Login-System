@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Login System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a24;
+    --border: rgba(120,100,255,0.15);
+    --border2: rgba(120,100,255,0.3);
+    --accent: #7b6cff;
+    --accent2: #a395ff;
+    --green: #3de8a0;
+    --red: #ff5c6a;
+    --amber: #ffb547;
+    --text: #e8e6ff;
+    --muted: #8884a8;
+    --font-head: 'Syne', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%;
+    left: -20%;
+    width: 80%;
+    height: 80%;
+    background: radial-gradient(ellipse, rgba(123,108,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%;
+    right: -15%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(61,232,160,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app-container {
+    width: 100%;
+    max-width: 480px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .brand {
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .brand-icon {
+    width: 52px;
+    height: 52px;
+    background: linear-gradient(135deg, var(--accent), #5843e0);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 32px rgba(123,108,255,0.35);
+  }
+  .brand-icon svg { width: 26px; height: 26px; color: #fff; }
+  .brand h1 {
+    font-family: var(--font-head);
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .brand p {
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(123,108,255,0.4), transparent);
+  }
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--surface2);
+    padding: 4px;
+    border-radius: 10px;
+    margin-bottom: 1.75rem;
+  }
+  .tab {
+    flex: 1;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .tab.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(123,108,255,0.4);
+  }
+
+  .form-group { margin-bottom: 1.1rem; }
+  label {
+    display: block;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    color: var(--muted);
+    pointer-events: none;
+    display: flex;
+  }
+  .input-icon svg { width: 15px; height: 15px; }
+  input[type="text"], input[type="password"], input[type="email"] {
+    width: 100%;
+    padding: 0.65rem 0.85rem 0.65rem 2.5rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(123,108,255,0.12);
+  }
+  input.error { border-color: var(--red); }
+  .toggle-pw {
+    position: absolute;
+    right: 10px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    transition: color 0.15s;
+  }
+  .toggle-pw:hover { color: var(--text); }
+  .toggle-pw svg { width: 15px; height: 15px; }
+
+  .strength-bar {
+    display: flex;
+    gap: 4px;
+    margin-top: 0.5rem;
+  }
+  .strength-seg {
+    flex: 1;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--surface2);
+    transition: background 0.3s;
+  }
+  .strength-seg.weak { background: var(--red); }
+  .strength-seg.fair { background: var(--amber); }
+  .strength-seg.good { background: var(--green); }
+  .strength-label {
+    font-size: 0.68rem;
+    margin-top: 0.3rem;
+    color: var(--muted);
+  }
+
+  .checkbox-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checkbox-row input[type="checkbox"] {
+    width: 15px; height: 15px;
+    accent-color: var(--accent);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+  }
+  .checkbox-row span {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-family: var(--font-head);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(123,108,255,0.3);
+  }
+  .btn:hover { background: #6b5cf0; transform: translateY(-1px); box-shadow: 0 6px 24px rgba(123,108,255,0.4); }
+  .btn:active { transform: translateY(0); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-spin { display: none; }
+  .btn.loading .btn-text { visibility: hidden; }
+  .btn.loading .btn-spin { display: block; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.25rem 0;
+    color: var(--muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .msg {
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    line-height: 1.4;
+  }
+  .msg svg { width: 14px; height: 14px; flex-shrink: 0; }
+  .msg.error { background: rgba(255,92,106,0.1); border: 1px solid rgba(255,92,106,0.25); color: var(--red); }
+  .msg.success { background: rgba(61,232,160,0.1); border: 1px solid rgba(61,232,160,0.25); color: var(--green); }
+  .msg.info { background: rgba(123,108,255,0.1); border: 1px solid rgba(123,108,255,0.25); color: var(--accent2); }
+
+  /* 2FA screen */
+  .otp-wrap { display: flex; gap: 8px; justify-content: center; margin: 1.25rem 0; }
+  .otp-box {
+    width: 46px; height: 54px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    color: var(--text);
+    font-family: var(--font-head);
+    font-size: 1.4rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    caret-color: var(--accent);
+    letter-spacing: 0;
+    padding: 0;
+  }
+  .otp-box:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(123,108,255,0.12);
+  }
+  .otp-timer {
+    text-align: center;
+    font-size: 0.72rem;
+    color: var(--muted);
+    margin-top: 0.5rem;
+  }
+  .otp-timer span { color: var(--accent2); }
+
+  /* Dashboard */
+  #dashboard {
+    display: none;
+  }
+  .dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 6px 14px 6px 8px;
+  }
+  .avatar {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.7rem;
+    color: #fff;
+  }
+  .user-pill span { font-size: 0.8rem; }
+  .btn-logout {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 6px 14px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .btn-logout:hover { border-color: var(--red); color: var(--red); }
+  .btn-logout svg { width: 13px; height: 13px; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 1.25rem; }
+  .stat-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+  }
+  .stat-card .stat-label { font-size: 0.65rem; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+  .stat-card .stat-val { font-family: var(--font-head); font-size: 1.3rem; font-weight: 700; margin-top: 4px; }
+  .stat-card .stat-val.green { color: var(--green); }
+  .stat-card .stat-val.accent { color: var(--accent2); }
+
+  .security-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1.5rem;
+  }
+  .badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    border: 1px solid;
+  }
+  .badge svg { width: 11px; height: 11px; }
+  .badge.on { background: rgba(61,232,160,0.1); border-color: rgba(61,232,160,0.3); color: var(--green); }
+  .badge.warn { background: rgba(255,181,71,0.1); border-color: rgba(255,181,71,0.3); color: var(--amber); }
+
+  .activity-list { list-style: none; }
+  .activity-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+  .activity-list li:last-child { border-bottom: none; }
+  .activity-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .activity-dot.green { background: var(--green); box-shadow: 0 0 5px var(--green); }
+  .activity-dot.amber { background: var(--amber); }
+  .activity-list .act-time { margin-left: auto; font-size: 0.65rem; }
+
+  .section-title {
+    font-family: var(--font-head);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+
+  @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.3s ease; }
+
+  .back-link {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+    transition: color 0.15s;
+  }
+  .back-link:hover { color: var(--accent2); }
+  .back-link svg { width: 13px; height: 13px; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <div class="brand">
+    <div class="brand-icon">
+      <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+    </div>
+    <h1>SecureAuth</h1>
+  </div>
+
+  <!-- Auth Card -->
+  <div class="card fade-in" id="auth-card">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('login')">Sign In</button>
+      <button class="tab" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <div id="msg-box"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+          <input type="text" id="l-user" placeholder="enter username" autocomplete="username"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password"/>
+          <button class="toggle-pw" onclick="togglePw('l-pass',this)" type="button">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="l-remember"/>
+        <span>Remember this device for 30 days</span>
+      </div>
+      <button class="btn" id="login-btn" onclick="doLogin()">
+        <span class="btn-text">Sign In</span>
+        <span class="btn-spin"><div class="spinner"></div></span>
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>Username</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></span>
+          <input type="text" id="r-user" placeholder="choose a username" autocomplete="username"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+          <input type="email" id="r-email" placeholder="you@example.com" autocomplete="email"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <input type="password" id="r-pass" placeholder="••••••••" oninput="checkStrength(this.value)" autocomplete="new-password"/>
+          <button class="toggle-pw" onclick="togglePw('r-pass',this)" type="button">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="strength-bar">
+          <div class="strength-seg" id="s1"></div>
+          <div class="strength-seg" id="s2"></div>
+          <div class="strength-seg" id="s3"></div>
+          <div class="strength-seg" id="s4"></div>
+        </div>
+        <div class="strength-label" id="s-label"></div>
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <div class="input-wrap">
+          <span class="input-icon"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4"/><path d="M21 12c0 5-4 9-9 9s-9-4-9-9 4-9 9-9 9 4 9 9z"/></svg></span>
+          <input type="password" id="r-pass2" placeholder="••••••••" autocomplete="new-password"/>
+        </div>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="r-2fa"/>
+        <span>Enable Two-Factor Authentication (2FA) — recommended</span>
+      </div>
+      <button class="btn" id="reg-btn" onclick="doRegister()">
+        <span class="btn-text">Create Account</span>
+        <span class="btn-spin"><div class="spinner"></div></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2FA Card -->
+  <div class="card fade-in" id="twofa-card" style="display:none">
+    <button class="back-link" onclick="show2FABack()">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to sign in
+    </button>
+    <div style="text-align:center; margin-bottom:1.5rem;">
+      <div style="font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:700; margin-bottom:0.4rem;">Two-Factor Verification</div>
+      <p style="font-size:0.75rem; color:var(--muted); line-height:1.6;">Enter the 6-digit code from your authenticator app or the one sent to your registered email.</p>
+    </div>
+    <div id="msg-box-2fa"></div>
+    <div class="otp-wrap">
+      <input class="otp-box" type="text" maxlength="1" id="o1" oninput="otpNext(this,'o2')" onkeydown="otpBack(event,this,'')"/>
+      <input class="otp-box" type="text" maxlength="1" id="o2" oninput="otpNext(this,'o3')" onkeydown="otpBack(event,this,'o1')"/>
+      <input class="otp-box" type="text" maxlength="1" id="o3" oninput="otpNext(this,'o4')" onkeydown="otpBack(event,this,'o2')"/>
+      <input class="otp-box" type="text" maxlength="1" id="o4" oninput="otpNext(this,'o5')" onkeydown="otpBack(event,this,'o3')"/>
+      <input class="otp-box" type="text" maxlength="1" id="o5" oninput="otpNext(this,'o6')" onkeydown="otpBack(event,this,'o4')"/>
+      <input class="otp-box" type="text" maxlength="1" id="o6" oninput="otpNext(this,'')" onkeydown="otpBack(event,this,'o5')"/>
+    </div>
+    <div class="otp-timer" id="otp-timer">Code expires in <span id="otp-countdown">04:59</span></div>
+    <br>
+    <button class="btn" onclick="verify2FA()">
+      <span class="btn-text">Verify & Sign In</span>
+    </button>
+  </div>
+
+  <!-- Dashboard Card -->
+  <div class="card fade-in" id="dashboard" style="display:none">
+    <div class="dash-header">
+      <div class="user-pill">
+        <div class="avatar" id="dash-avatar">JD</div>
+        <span id="dash-username">john_doe</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </button>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Session Status</div>
+        <div class="stat-val green">Active</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Auth Method</div>
+        <div class="stat-val accent" id="dash-auth-method">Password</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Login Time</div>
+        <div class="stat-val" id="dash-login-time" style="font-size:0.85rem; margin-top:6px;"></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hash Algorithm</div>
+        <div class="stat-val" style="font-size:0.85rem; margin-top:6px; color:var(--accent2);">Argon2id</div>
+      </div>
+    </div>
+
+    <div class="security-badges">
+      <div class="badge on">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        SQL injection protected
+      </div>
+      <div class="badge on">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Input validated
+      </div>
+      <div class="badge on" id="badge-2fa">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        2FA enabled
+      </div>
+      <div class="badge on">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        Session secured
+      </div>
+    </div>
+
+    <div class="section-title">Recent Activity</div>
+    <ul class="activity-list">
+      <li>
+        <span class="activity-dot green"></span>
+        Successful login from <strong style="color:var(--text)">Mumbai, IN</strong>
+        <span class="act-time" id="act-time1"></span>
+      </li>
+      <li>
+        <span class="activity-dot amber"></span>
+        Password hash verified (Argon2id)
+        <span class="act-time" id="act-time2"></span>
+      </li>
+      <li>
+        <span class="activity-dot green"></span>
+        Session token generated
+        <span class="act-time" id="act-time3"></span>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+  // --- In-memory user store (simulates backend with hashed passwords) ---
+  const users = {};
+  let session = null;
+  let pendingUser = null;
+  let otpCode = null;
+  let otpInterval = null;
+  let currentTab = 'login';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+    clearMsg('msg-box');
+  }
+
+  function showMsg(boxId, type, text) {
+    const icons = {
+      error: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
+      success: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>',
+      info: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+    };
+    document.getElementById(boxId).innerHTML = `<div class="msg ${type}">${icons[type]}<span>${text}</span></div>`;
+  }
+  function clearMsg(boxId) { document.getElementById(boxId).innerHTML = ''; }
+
+  // Sanitize to prevent XSS / injection
+  function sanitize(str) {
+    return str.replace(/[<>"'`;&|]/g, '');
+  }
+
+  // Simulated Argon2id hash (in a real app, this is server-side)
+  function fakeHash(password) {
+    let h = 5381;
+    for (let i = 0; i < password.length; i++) h = (h * 33 ^ password.charCodeAt(i)) >>> 0;
+    return '$argon2id$v=19$m=65536,t=3,p=4$' + btoa(h.toString(16)).replace(/=/g,'') + '$' + btoa(password.split('').reverse().join('')).replace(/=/g,'');
+  }
+  function verifyHash(password, hash) {
+    return fakeHash(password) === hash;
+  }
+
+  function validateInput(username, password, email='') {
+    const sqlPattern = /('|--|;|\/\*|\*\/|xp_|UNION|SELECT|DROP|INSERT|UPDATE|DELETE|EXEC)/i;
+    if (!username || username.length < 3) return 'Username must be at least 3 characters.';
+    if (sqlPattern.test(username)) return 'Invalid characters detected in username.';
+    if (!password || password.length < 6) return 'Password must be at least 6 characters.';
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Please enter a valid email address.';
+    return null;
+  }
+
+  function checkStrength(pw) {
+    const segs = [document.getElementById('s1'),document.getElementById('s2'),document.getElementById('s3'),document.getElementById('s4')];
+    const label = document.getElementById('s-label');
+    segs.forEach(s => { s.className = 'strength-seg'; });
+    if (!pw) { label.textContent = ''; return; }
+    let score = 0;
+    if (pw.length >= 8) score++;
+    if (/[A-Z]/.test(pw)) score++;
+    if (/[0-9]/.test(pw)) score++;
+    if (/[^a-zA-Z0-9]/.test(pw)) score++;
+    const levels = ['weak','fair','fair','good'];
+    const labels = ['Weak password','Fair — add numbers or symbols','Fair — add uppercase or symbols','Strong password'];
+    const cls = score > 0 ? levels[score-1] : 'weak';
+    for (let i = 0; i < score; i++) segs[i].classList.add(cls);
+    label.textContent = score > 0 ? labels[score-1] : '';
+    label.style.color = cls === 'weak' ? 'var(--red)' : cls === 'fair' ? 'var(--amber)' : 'var(--green)';
+  }
+
+  function togglePw(id, btn) {
+    const input = document.getElementById(id);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.innerHTML = isText
+      ? '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>'
+      : '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  }
+
+  function setLoading(btnId, loading) {
+    const btn = document.getElementById(btnId);
+    btn.classList.toggle('loading', loading);
+    btn.disabled = loading;
+  }
+
+  function doLogin() {
+    clearMsg('msg-box');
+    const username = sanitize(document.getElementById('l-user').value.trim());
+    const password = document.getElementById('l-pass').value;
+    const err = validateInput(username, password);
+    if (err) { showMsg('msg-box','error',err); return; }
+    if (!users[username]) { showMsg('msg-box','error','Invalid username or password.'); return; }
+    setLoading('login-btn', true);
+    setTimeout(() => {
+      setLoading('login-btn', false);
+      if (!verifyHash(password, users[username].hash)) {
+        showMsg('msg-box','error','Invalid username or password.');
+        return;
+      }
+      if (users[username].twofa) {
+        pendingUser = username;
+        startOTP();
+        document.getElementById('auth-card').style.display = 'none';
+        document.getElementById('twofa-card').style.display = 'block';
+      } else {
+        openSession(username, false);
+      }
+    }, 800);
+  }
+
+  function doRegister() {
+    clearMsg('msg-box');
+    const username = sanitize(document.getElementById('r-user').value.trim());
+    const email = sanitize(document.getElementById('r-email').value.trim());
+    const password = document.getElementById('r-pass').value;
+    const password2 = document.getElementById('r-pass2').value;
+    const want2fa = document.getElementById('r-2fa').checked;
+    const err = validateInput(username, password, email);
+    if (err) { showMsg('msg-box','error',err); return; }
+    if (password !== password2) { showMsg('msg-box','error','Passwords do not match.'); return; }
+    if (users[username]) { showMsg('msg-box','error','Username already taken. Please choose another.'); return; }
+    setLoading('reg-btn', true);
+    setTimeout(() => {
+      setLoading('reg-btn', false);
+      users[username] = { hash: fakeHash(password), email, twofa: want2fa };
+      showMsg('msg-box','success','Account created! You can now sign in.');
+      switchTab('login');
+      document.getElementById('l-user').value = username;
+    }, 900);
+  }
+
+  function startOTP() {
+    otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    showMsg('msg-box-2fa','info','For this demo, your OTP is: <strong>' + otpCode + '</strong>');
+    document.getElementById('o1').focus();
+    let secs = 299;
+    clearInterval(otpInterval);
+    otpInterval = setInterval(() => {
+      const m = String(Math.floor(secs/60)).padStart(2,'0');
+      const s = String(secs%60).padStart(2,'0');
+      document.getElementById('otp-countdown').textContent = m+':'+s;
+      if (secs-- <= 0) { clearInterval(otpInterval); showMsg('msg-box-2fa','error','OTP expired. Please try again.'); }
+    }, 1000);
+  }
+
+  function otpNext(el, nextId) {
+    el.value = el.value.replace(/\D/,'');
+    if (el.value && nextId) document.getElementById(nextId).focus();
+  }
+  function otpBack(e, el, prevId) {
+    if (e.key === 'Backspace' && !el.value && prevId) document.getElementById(prevId).focus();
+  }
+
+  function verify2FA() {
+    const entered = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value).join('');
+    if (entered.length < 6) { showMsg('msg-box-2fa','error','Please enter all 6 digits.'); return; }
+    if (entered !== otpCode) { showMsg('msg-box-2fa','error','Incorrect code. Please try again.'); return; }
+    clearInterval(otpInterval);
+    document.getElementById('twofa-card').style.display = 'none';
+    openSession(pendingUser, true);
+  }
+
+  function show2FABack() {
+    clearInterval(otpInterval);
+    document.getElementById('twofa-card').style.display = 'none';
+    document.getElementById('auth-card').style.display = 'block';
+    clearMsg('msg-box');
+    ['o1','o2','o3','o4','o5','o6'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function openSession(username, used2fa) {
+    const now = new Date();
+    session = { username, used2fa, loginTime: now };
+    const initials = username.slice(0,2).toUpperCase();
+    document.getElementById('dash-avatar').textContent = initials;
+    document.getElementById('dash-username').textContent = username;
+    document.getElementById('dash-auth-method').textContent = used2fa ? 'Password + 2FA' : 'Password';
+    document.getElementById('dash-login-time').textContent = now.toLocaleTimeString();
+    document.getElementById('act-time1').textContent = now.toLocaleTimeString();
+    document.getElementById('act-time2').textContent = new Date(now-2000).toLocaleTimeString();
+    document.getElementById('act-time3').textContent = new Date(now-1000).toLocaleTimeString();
+    // show/hide 2FA badge
+    document.getElementById('badge-2fa').style.display = (users[username] && users[username].twofa) ? 'flex' : 'none';
+    document.getElementById('auth-card').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+  }
+
+  function doLogout() {
+    session = null;
+    pendingUser = null;
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('auth-card').style.display = 'block';
+    document.getElementById('l-user').value = '';
+    document.getElementById('l-pass').value = '';
+    clearMsg('msg-box');
+    showMsg('msg-box','success','You have been logged out successfully.');
+    switchTab('login');
+  }
+
+  // Seed demo user
+  users['demo'] = { hash: fakeHash('Demo@1234'), email: 'demo@example.com', twofa: false };
+  users['admin'] = { hash: fakeHash('Admin@2fa!'), email: 'admin@example.com', twofa: true };
+</script>
+</body>
+</html>
