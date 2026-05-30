@@ -7,16 +7,24 @@ Here's a fully functional Secure Login System — open the file in any browser t
 Security features:
 
 1.Passwords hashed with a simulated Argon2id scheme (in production this lives server-side via a library like argon2 for Node.js or passlib for Python)
+
 2.SQL injection protection — input is sanitized and scanned for common injection patterns (UNION, SELECT, DROP, ', --, etc.)
+
 3.Input validation — length, email format, character rules
+
 4.Password strength meter — live 4-bar indicator while registering
 
 
 Auth flow:
+
 1.Registration — creates a user with a hashed password, optional 2FA enrollment
+
 2.Login — verifies against the hash, then routes to 2FA if enabled
+
 3.Two-Factor Authentication (2FA) — 6-digit OTP screen with a 5-minute countdown timer (code shown on screen for demo purposes)
+
 4.Session management — tracks login time, auth method, and session state
+
 5.Logout — clears session and redirects to login
 
 
